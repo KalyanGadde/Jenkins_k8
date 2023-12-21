@@ -254,6 +254,8 @@ Now, when browsing to any one of the Node IPs on port 32000, you will be able to
 http://<node-ip>:32000
 ```
 Other Details:
+```
 Jenkins config file is located at /lib/systemd/system/jenkins.service
 Jenkins Admin password is located at /var/lib/jenkins/secrets/initialAdminPassword
 Jenkins logs are located at /var/log/jenkins/
+```
