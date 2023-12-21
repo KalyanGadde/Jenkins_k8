@@ -4,7 +4,7 @@ metadata:
   name: jenkins
   namespace: devops-tools
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: jenkins-server
@@ -53,4 +53,5 @@ spec:
               mountPath: /var/jenkins_home
       volumes:
         - name: jenkins-data
-          emptyDir: {}
+          persistentVolumeClaim:
+              claimName: jenkins-pv-claim

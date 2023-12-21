@@ -28,7 +28,7 @@ Step 1: Create a Namespace for Jenkins. It is good to categorize all the DevOps 
 
 kubectl create namespace devops-tools
 Step 2: Create a 'serviceAccount.yaml' file and copy the following admin service account manifest.
-
+```
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -57,6 +57,7 @@ subjects:
 - kind: ServiceAccount
   name: jenkins-admin
   namespace: devops-tools
+```
 The 'serviceAccount.yaml' creates a 'jenkins-admin' clusterRole, 'jenkins-admin' ServiceAccount and binds the 'clusterRole' to the service account.
 
 The 'jenkins-admin' cluster role has all the permissions to manage the cluster components. You can also restrict access by specifying individual resource actions.
@@ -65,7 +66,7 @@ Now create the service account using kubectl.
 
 kubectl apply -f serviceAccount.yaml
 Step 3: Create 'volume.yaml' and copy the following persistent volume manifest.
-
+```
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -111,6 +112,7 @@ spec:
   resources:
     requests:
       storage: 3Gi
+```
 Important Note: Replace 'colima' with any one of your cluster worker nodes hostname.
 
 You can get the worker node hostname using the kubectl.
@@ -128,7 +130,7 @@ Let’s create the volume using kubectl
 
 kubectl create -f volume.yaml
 Step 4: Create a Deployment file named 'deployment.yaml' and copy the following deployment manifest.
-
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -186,6 +188,8 @@ spec:
         - name: jenkins-data
           persistentVolumeClaim:
               claimName: jenkins-pv-claim
+```      
+
 In this Jenkins Kubernetes deployment we have used the following:
 
 'securityContext' for Jenkins pod to be able to write to the local persistent volume.
