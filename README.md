@@ -17,16 +17,18 @@ Create a service YAML and deploy it.
 This guide doesn’t use local persistent volume as this is a generic guide. For using persistent volume for your Jenkins data, you need to create volumes of relevant cloud or on-prem data center and configure it.
 Jenkins Kubernetes Manifest Files
 All the Jenkins Kubernetes manifest files used here are hosted on GitHub. Please clone the repository if you have trouble copying the manifest from the document.
-
+```
 git clone https://github.com/scriptcamp/kubernetes-jenkins
+```
 Use the GitHub files for reference and follow the steps in the next sections.
 
 Kubernetes Jenkins Deployment
 Let’s get started with deploying Jenkins on Kubernetes.
 
 Step 1: Create a Namespace for Jenkins. It is good to categorize all the DevOps tools as a separate namespace from other applications.
-
+```
 kubectl create namespace devops-tools
+```
 Step 2: Create a 'serviceAccount.yaml' file and copy the following admin service account manifest.
 ```
 ---
@@ -63,8 +65,9 @@ The 'serviceAccount.yaml' creates a 'jenkins-admin' clusterRole, 'jenkins-admin'
 The 'jenkins-admin' cluster role has all the permissions to manage the cluster components. You can also restrict access by specifying individual resource actions.
 
 Now create the service account using kubectl.
-
+```
 kubectl apply -f serviceAccount.yaml
+```
 Step 3: Create 'volume.yaml' and copy the following persistent volume manifest.
 ```
 kind: StorageClass
@@ -116,8 +119,9 @@ spec:
 Important Note: Replace 'colima' with any one of your cluster worker nodes hostname.
 
 You can get the worker node hostname using the kubectl.
-
+```
 kubectl get nodes
+```
 For volume, we are using the 'local' storage class for the purpose of demonstration. Meaning, it creates a 'PersistentVolume' volume in a specific node under the '/mnt' location.
 
 As the 'local' storage class requires the node selector, you need to specify the worker node name correctly for the Jenkins pod to get scheduled in the specific node.
@@ -127,8 +131,9 @@ If the pod gets deleted or restarted, the data will get persisted in the node vo
 Ideally, you should use a persistent volume using the available storage class with the cloud provider, or the one provided by the cluster administrator to persist data on node failures.
 
 Let’s create the volume using kubectl
-
+```
 kubectl create -f volume.yaml
+```
 Step 4: Create a Deployment file named 'deployment.yaml' and copy the following deployment manifest.
 ```
 apiVersion: apps/v1
@@ -197,24 +202,30 @@ Liveness and readiness probe to monitor the health of the Jenkins pod.
 Local persistent volume based on local storage class that holds the Jenkins data path '/var/jenkins_home'.
 The deployment file uses local storage class persistent volume for Jenkins data. For production use cases, you should add a cloud-specific storage class persistent volume for your Jenkins data.
 If you don’t want the local storage persistent volume, you can replace the volume definition in the deployment with the host directory as shown below.
-
+```
 volumes:
 - name: jenkins-data
 emptyDir: \{}
+```
 Create the deployment using kubectl.
-
+```
 kubectl apply -f deployment.yaml
+```
 Check the deployment status.
 
+```
 kubectl get deployments -n devops-tools
+```
 Now, you can get the deployment details using the following command.
 
+```
 kubectl describe deployments --namespace=devops-tools
+```
 Accessing Jenkins Using Kubernetes Service
 We have now created a deployment. However, it is not accessible to the outside world. For accessing the Jenkins deployment from the outside world, we need to create a service and map it to the deployment.
 
 Create 'service.yaml' and copy the following service manifest:
-
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -232,14 +243,16 @@ spec:
     - port: 8080
       targetPort: 8080
       nodePort: 32000
+```
 Here, we are using the type as 'NodePort' which will expose Jenkins on all kubernetes node IPs on port 32000. If you have an ingress setup, you can create an ingress rule to access Jenkins. Also, you can expose the Jenkins service as a Loadbalancer if you are running the cluster on AWS, Google, or Azure cloud.
 Create the Jenkins service using kubectl.
-
+```
 kubectl apply -f service.yaml
+```
 Now, when browsing to any one of the Node IPs on port 32000, you will be able to access the Jenkins dashboard.
-
+```
 http://<node-ip>:32000
-
+```
 Other Details:
 Jenkins config file is located at /lib/systemd/system/jenkins.service
 Jenkins Admin password is located at /var/lib/jenkins/secrets/initialAdminPassword
